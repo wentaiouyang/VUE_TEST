@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>VUE test</title>
+  </head>
+  <body>
+    <div id="app">
+      <p>{{notification}}</p>
+      <button class="Btn" v-on:click="getData">Get Data</button>
+
+      <div v-if="isloaded">
+        <table class="table table-bordered striped">
+          <thead>
+            <tr>
+              <th>Total Items</th>
+              <th>Unique Email Address</th>
+              <th>Unique Order Address</th>
+              <th>Total Weight of orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in warehouse_order" :key="item.ClientId">
+              <td>{{ item.TotalItems }}</td>
+              <td>{{ item.Email }}</td>
+              <td>{{ item.Address1 }}</td>
+              <td>{{ item.TotalWeight }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="Btn" v-on:click="returnData">Return Data</button>
+      </div>
+      <p v-else>Please press the button above to fetch the data</p>
+    </div>
+
+    <script>
+      const API_GET = "https://ena2jdzjpkjnfm5.m.pipedream.net/"
+      const API_RETURN = "https://enfdrrt1e9q3ewg.m.pipedream.net/"
+      var app = new Vue({
+        el: "#app",
+        data: {
+          // warehouse order data fetched from api
+          warehouse_order: null,
+
+          // boolean value to check whether data loading success
+          isloaded: false,
+
+          // success notification of return data function
+          notification: null,
+        },
+        methods: {
+          // function to fetch warehouse order data
+          getData: function () {
+            axios
+              .get(API_GET)
+              .then((resp) => {
+                console.log(resp.data)
+                this.warehouse_order = resp.data
+                this.isloaded = true
+              })
+              .catch((err) => {
+                console.log("ERROR：" + err.status + "," + err.statusText)
+              })
+          },
+          // function to return warehouse order data
+          returnData: function () {
+            axios
+              .post(API_RETURN, {
+                params: {
+                  data: this.warehouse_order,
+                },
+              })
+              .then((resp) => {
+                console.log(resp.data)
+                if (resp.data.success) {
+                  this.notification = "Return data success"
+                }
+              })
+              .catch((err) => {
+                console.log("ERROR：" + err.status + "," + err.statusText)
+              })
+          },
+        },
+      })
+    </script>
+    <style>
+      .Btn {
+        padding: 10px;
+        background-color: #003057;
+        cursor: pointer;
+        border: none;
+        color: white;
+        border-radius: 5px;
+      }
+
+      .table th {
+        background-color: #003057;
+        color: #fff;
+        border-top: 2px solid #5b6b8f !important;
+      }
+
+      .table-bordered th {
+        border-color: #5b6b8f;
+      }
+
+      .table {
+        border-bottom: 2px solid #ed1d24;
+      }
+
+      .striped tr:nth-of-type(odd) {
+        background-color: #c8d4e8;
+      }
+    </style>
+  </body>
+</html>
