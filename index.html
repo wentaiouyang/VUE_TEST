@@ -72,14 +72,32 @@
           notification: null,
         },
         methods: {
+          formatData: function (data) {
+            let new_data = []
+            data.forEach((item, index) => {
+              for (let i = 0; i < new_data.length; i++) {
+                if (new_data[i].Email === item.Email) {
+                  new_data[i].TotalItems += item.TotalItems
+                  new_data[i].TotalWeight += item.TotalWeight
+                  return
+                }
+              }
+              new_data.push({
+                Email: item.Email,
+                TotalItems: item.TotalItems,
+                TotalWeight: item.TotalWeight,
+                Address1: item.Address1,
+              })
+            })
+            return new_data
+          },
           // function to fetch warehouse order data
           getData: function () {
             this.isLoading = true
             axios
               .get(API_GET)
               .then((resp) => {
-                console.log(resp.data)
-                this.warehouse_order = resp.data
+                this.warehouse_order = this.formatData(resp.data)
                 this.isLoaded = true
                 this.isLoading = false
               })
