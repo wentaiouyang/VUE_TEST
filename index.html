@@ -11,31 +11,46 @@
   </head>
   <body>
     <div id="app">
-      <p>{{notification}}</p>
-      <button class="Btn" v-on:click="getData">Get Data</button>
+      <div class="content">
+        <p>{{notification}}</p>
+        <button class="Btn" v-on:click="getData">Get Data</button>
 
-      <div v-if="isloaded">
-        <table class="table table-bordered striped">
-          <thead>
-            <tr>
-              <th>Total Items</th>
-              <th>Unique Email Address</th>
-              <th>Unique Order Address</th>
-              <th>Total Weight of orders</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in warehouse_order" :key="item.ClientId">
-              <td>{{ item.TotalItems }}</td>
-              <td>{{ item.Email }}</td>
-              <td>{{ item.Address1 }}</td>
-              <td>{{ item.TotalWeight }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <button class="Btn" v-on:click="returnData">Return Data</button>
+        <div v-if="isLoaded">
+          <table class="table table-bordered striped">
+            <thead>
+              <tr>
+                <th>Total Items</th>
+                <th>Unique Email Address</th>
+                <th>Unique Order Address</th>
+                <th>Total Weight of orders</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in warehouse_order" :key="item.ClientId">
+                <td>{{ item.TotalItems }}</td>
+                <td>{{ item.Email }}</td>
+                <td>{{ item.Address1 }}</td>
+                <td>{{ item.TotalWeight }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="Btn" v-on:click="returnData">Return Data</button>
+        </div>
+        <p v-else>Please press the button above to fetch the data</p>
+        <p v-if="isLoading">Loading....</p>
       </div>
-      <p v-else>Please press the button above to fetch the data</p>
+
+      <div class="brief_introduction">
+        <h3>Brief introduction</h3>
+        <p>
+          In this simple Vue app, users can get the order data of warehouse
+          store and display it in the table by clicking the 'get data' button.
+          When fetching data, the words' loading... 'will be displayed on the
+          page, indicating that the content is being loaded. When loading is
+          complete, the table appears. By clicking the 'return data' button, the
+          order data will be returned to the specified API
+        </p>
+      </div>
     </div>
 
     <script>
@@ -48,7 +63,10 @@
           warehouse_order: null,
 
           // boolean value to check whether data loading success
-          isloaded: false,
+          isLoaded: false,
+
+          // boolean value to check whether data is loading
+          isLoading: false,
 
           // success notification of return data function
           notification: null,
@@ -56,15 +74,18 @@
         methods: {
           // function to fetch warehouse order data
           getData: function () {
+            this.isLoading = true
             axios
               .get(API_GET)
               .then((resp) => {
                 console.log(resp.data)
                 this.warehouse_order = resp.data
-                this.isloaded = true
+                this.isLoaded = true
+                this.isLoading = false
               })
               .catch((err) => {
                 console.log("ERROR：" + err.status + "," + err.statusText)
+                this.isLoading = false
               })
           },
           // function to return warehouse order data
@@ -89,6 +110,28 @@
       })
     </script>
     <style>
+      #app {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .content {
+        width: 50%;
+        padding: 20px;
+      }
+
+      .brief_introduction p {
+        line-height: 25px;
+      }
+
+      .brief_introduction {
+        width: 50%;
+        padding: 20px;
+        background-color: #f2f2f2;
+        border-radius: 10px;
+      }
+
       .Btn {
         padding: 10px;
         background-color: #003057;
@@ -110,6 +153,7 @@
 
       .table {
         border-bottom: 2px solid #ed1d24;
+        margin-bottom: 20px;
       }
 
       .striped tr:nth-of-type(odd) {
